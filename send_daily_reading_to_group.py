@@ -12,7 +12,7 @@ import os
 from datetime import datetime
 
 # 群组配置 - 通过环境变量读取
-TARGET_GROUP = os.getenv('FEISHU_GROUP_ID', 'YOUR_GROUP_ID_HERE')
+TARGET_GROUP = os.getenv('FEISHU_READING_GROUP_ID', 'YOUR_READING_GROUP_ID')
 
 # 语文学习内容库（人教版小学三年级下册）
 CHINESE_CONTENT = {
@@ -212,10 +212,10 @@ def generate_daily_reading():
         if word['重点']:
             reading_text += " 【重点！】"
     
-    reading_text += f("""
+    reading_text += """
 
 💬 今日句型
-""")
+"""
     
     for sent in eng_sentences:
         reading_text += f"\n• {sent['english']} - {sent['chinese']}"
@@ -254,7 +254,7 @@ if __name__ == "__main__":
     content = generate_daily_reading()
     
     # 保存到文件
-    with open("/root/.open( claw/workspace/daily_reading.txt", "w", encoding="utf-8") as f:
+    with open("/root/.openclaw/workspace/daily_reading.txt", "w", encoding="utf-8") as f:
         f.write(content)
     
     print("✅ 朗读内容已保存到 daily_reading.txt")
