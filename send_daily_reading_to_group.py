@@ -1,18 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-小学三年级每日学习朗读内容生成器（直接发送到群组）
+小学三年级每日学习朗读内容生成器
 """
 
 import random
 import json
-import sys
-import subprocess
-import os
-from datetime import datetime
-
-# 群组配置 - 通过环境变量读取
-TARGET_GROUP = os.getenv('FEISHU_READING_GROUP_ID', 'YOUR_READING_GROUP_ID')
+from datetime import datetime, timedelta
 
 # 语文学习内容库（人教版小学三年级下册）
 CHINESE_CONTENT = {
@@ -20,7 +14,7 @@ CHINESE_CONTENT = {
         {"字": "燕", "拼音": "yàn", "意思": "鸟类，春天来临的象征", "重点": True},
         {"字": "聚", "拼音": "jù", "意思": "聚集，集合", "重点": True},
         {"字": "增", "拼音": "zēng", "意思": "增加，增添", "重点": True},
-        {"字": "掠", "拼音": "lüè", "意思": "轻轻擦过", "重点": False},
+               {"字": "掠", "拼音": "lüè", "意思": "轻轻擦过", "重点": False},
         {"字": "沾", "拼音": "zhān", "意思": "浸湿，碰上", "重点": False},
         {"字": "瓣", "拼音": "bàn", "意思": "花瓣", "重点": True},
         {"字": "蓬", "拼音": "péng", "意思": "蓬松，茂盛", "重点": True},
@@ -117,7 +111,8 @@ ENGLISH_CONTENT = {
         {
             "english": "How many subjects do you have?",
             "chinese": "你有多少门学科？",
-            "重点": False},
+            "重点": False
+        },
         {
             "english": "I have six subjects.",
             "chinese": "我有六门学科。",
@@ -155,6 +150,12 @@ ENGLISH_CONTENT = {
         }
     ]
 }
+
+def repeat_if_important(text, is_important):
+    """重要内容重复3次"""
+    if is_important:
+        return f"{text}\n（重点！请重复三遍）\n{text}\n{text}\n{text}"
+    return text
 
 def generate_daily_reading():
     """生成今日朗读内容"""
@@ -212,7 +213,7 @@ def generate_daily_reading():
         if word['重点']:
             reading_text += " 【重点！】"
     
-    reading_text += """
+    reading_text += f"""
 
 💬 今日句型
 """
@@ -250,41 +251,11 @@ B: {eng_dialog['B']} ({eng_dialog['B中文']})
     return reading_text
 
 if __name__ == "__main__":
-    # 生成内容
     content = generate_daily_reading()
+    print(content)
     
     # 保存到文件
     with open("/root/.openclaw/workspace/daily_reading.txt", "w", encoding="utf-8") as f:
         f.write(content)
     
-    print("✅ 朗读内容已保存到 daily_reading.txt")
-    
-    # 使用openclaw CLI直接发送到群组
-    cmd = [
-        "message",
-        "send",
-        "--channel", "feishu",
-        "--target", TARGET_GROUP,
-        "--message", content
-    ]
-    
-    try:
-        result = subprocess.run(
-            ["openclaw"] + cmd,
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-        
-        if result.returncode == 0:
-            print(f"✅ 成功发送消息到群组 {TARGET_GROUP}")
-            print(result.stdout)
-        else:
-            print(f"❌ 发送失败: {result.stderr}")
-            sys.exit(1)
-    except subprocess.TimeoutExpired:
-        print("❌ 发送超时")
-        sys.exit(1)
-    except Exception as e:
-        print(f"❌ 发送错误: {e}")
-        sys.exit(1)
+    print("\n✅ 朗读内容已保存到 daily_reading.txt")
